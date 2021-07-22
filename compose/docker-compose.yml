@@ -9,11 +9,12 @@ services:
     hostname: node0
     image: pivotalrabbitmq/rabbitmq-stream
     ports:
-      - "15672:15672"
-      - "5552:5552"
+      - "5561:5551"
+      - "5562:5552"
     tty: true
     volumes:
      - ./conf/:/etc/rabbitmq/
+     - "./tls-gen/basic/result/:/certs"
   rabbit_node1:
     environment:
       - RABBITMQ_ERLANG_COOKIE='secret_cookie'
@@ -21,15 +22,14 @@ services:
     networks:
       - back
     hostname: node1
-    depends_on:
-      - rabbit_node_0
     image: pivotalrabbitmq/rabbitmq-stream
     ports:
-      - "15673:15672"
-      - "5553:5552"
+      - "5571:5551"
+      - "5572:5552"
     tty: true
     volumes:
       - ./conf/:/etc/rabbitmq/
+      - "./tls-gen/basic/result/:/certs"
   rabbit_node2:
     environment:
       - RABBITMQ_ERLANG_COOKIE='secret_cookie'
@@ -37,15 +37,23 @@ services:
     networks:
       - back
     hostname: node2
-    depends_on:
-      - rabbit_node_1
     image: pivotalrabbitmq/rabbitmq-stream
     ports:
-      - "15674:15672"
-      - "5554:5552"
+      - "5581:5551"
+      - "5582:5552"
     tty: true
     volumes:
       - ./conf/:/etc/rabbitmq/
-
+      - "./tls-gen/basic/result/:/certs"
+  haproxy:
+    image: haproxy-rabbitmq-cluster
+#    container_name: haproxy
+    hostname: haproxy
+    ports:
+      - "5553:5552"
+      - "5554:5551"
+      - "15673:15672"
+    networks:
+      - back
 networks:
   back:
